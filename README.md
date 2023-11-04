@@ -24,7 +24,7 @@ By using a raspberry pi, a camera, and a Lidar, we are able to first detect a pe
 ## Frameworks
 1. MediaPipe's Hand landmark detection
 
-#Goal
+# Goal
 Use gestures only to control home devices without the need of wearable devices or voice control
 
 # Milestones
