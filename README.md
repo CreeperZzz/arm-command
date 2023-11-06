@@ -20,9 +20,11 @@ By using a raspberry pi, a camera, and a Lidar, we are able to first detect a pe
 3. Intel Realsense L515
 4. Servos
 5. Laser Pointer
+6. TP-Link Kasa Smart Plug
 
 ## Frameworks
 1. MediaPipe's Hand landmark detection
+2. Python-kasa
 
 # Goal
 Use gestures only to control home devices without the need of wearable devices or voice control
