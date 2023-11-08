@@ -2,7 +2,7 @@
 
 ## 1. Motivation & Objective
 
-What are you trying to do and why? (plain English without jargon)
+Use gestures only to control home devices without the need of wearable devices or voice control.
 
 ## 2. State of the Art & Its Limitations
 
