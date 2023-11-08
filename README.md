@@ -3,7 +3,7 @@
 ### ECEM202A - Embedded Systems, Fall 2023
 
 
-# Project Introduction
+# Abstract
 
 This project aims to allow an user to control smart home devices using their hands by simply pointing to it.
 
