@@ -1,5 +1,4 @@
 # Arm-Command
-## Project Members: Shiwei Hu, Lucas Katayama
 ### ECEM202A - Embedded Systems, Fall 2023
 
 
@@ -11,6 +10,15 @@ By using a raspberry pi, a camera, and a Lidar, we are able to first detect a pe
 
 ![Screenshot](image1.png)
 
+# Team
+* Shiwei Hu 
+* Lucas Katayama
+
+# Required Submissions
+* [Proposal](proposal)
+* [Midterm Checkpoint Presentation Slides](http://)
+* [Final Presentation Slides](http://)
+* [Final Report](report)
 
 # Devices and Frameworks used
 
