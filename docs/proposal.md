@@ -77,4 +77,4 @@ List datasets that you have identified and plan to use. Provide references (with
 ## 10. References
 
 - [Intel Realsense](https://www.intelrealsense.com/developers/)
-- [Mediapipe Hand Landmark detection model](mediapipe/docs/solutions/hands.md at master · google/mediapipe (github.com))
+- [Mediapipe Hand Landmark detection model](https://github.com/google/mediapipe/blob/master/docs/solutions/hands.md)
