@@ -10,7 +10,7 @@ By using a raspberry pi, a camera, and a Lidar, we are able to first detect a pe
 ### State of the Art
 - Setup devices and scenes through app
 - User interaction based on voice prompts using devices’/scenes names 
-- Gesture controls need wearable devices.
+- Gesture controls need wearable devices. 
 ### Limitations
 - Have to remember the name of devices
 - Tedious/hard setup process
@@ -27,12 +27,13 @@ Integration of camera and Lidar (tof sensor) to compute direction in which the u
 
 - Instead of voice control, gesture control will be the major method to control home devices because it’s convenient and smooth.
 - People with speech disabilities can also use this solution to control smart home devices if adapted to detect gestures
-## 5. Challenges
+  
 
+## 5. Challenges
 ### Challenges:
 - Precision of tof sensor detection, the accuracy of 3d metrics
 - The model precision to detect human skeletons
-- Delays due to computations
+- Delays due to computations 
 ### Risks:
 - As we’re dealing with a camera, this could result in privacy issues.
 
