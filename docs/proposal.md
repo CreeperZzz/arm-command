@@ -65,6 +65,8 @@ Time taken to determine device
 ## 9. Related Work
 
 ### 9.a. Papers
+- [SeleCon](https://ieeexplore.ieee.org/document/7946862) : This paper presents the idea of using a ultra-wideband (UWB) equipped smartwatch to implement a pointing approach to interact with smart devices. This is similar to our approach but it relies on a wearable device and pre-configured "scenes" to determine where the user is pointing to.
+- [Minuet](https://dl.acm.org/doi/10.1145/3357251.3357581) : This paper explores the HCI aspect of using of multimodal approach to interacting with smart home devices.
 
 List the key papers that you have identified relating to your project idea, and describe how they related to your project. Provide references (with full citation in the References section below).
 
@@ -80,3 +82,4 @@ List datasets that you have identified and plan to use. Provide references (with
 
 - [Intel Realsense](https://www.intelrealsense.com/developers/)
 - [Mediapipe Hand Landmark detection model](https://github.com/google/mediapipe/blob/master/docs/solutions/hands.md)
+- [SeleCon](https://ieeexplore.ieee.org/document/7946862)
