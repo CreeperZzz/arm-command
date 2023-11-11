@@ -33,8 +33,8 @@ def main():
     # Create a config and configure the pipeline to stream
     # different resolutions of color and depth streams
     config = rs.config()
-    config.enable_stream(rs.stream.depth, 1024, 768, rs.format.z16, 30)
-    config.enable_stream(rs.stream.color, 1920, 1080, rs.format.bgr8, 30)
+    config.enable_stream(rs.stream.depth, 640, 480, rs.format.z16, 30)
+    config.enable_stream(rs.stream.color, 640, 480, rs.format.rgb8, 30)
 
     # Start streaming
     pipeline.start(config)
@@ -42,53 +42,57 @@ def main():
     while True:
         frames = pipeline.wait_for_frames()
         color_frame = frames.get_color_frame()
+        depth_frame = frames.get_depth_frame()
 
         if not color_frame:
             continue
 
         # Convert images to numpy arrays
         rgb_frame = np.asanyarray(color_frame.get_data())
-
+        depth_image = np.asanyarray(depth_frame.get_data())
+        depth_colormap = cv2.applyColorMap(cv2.convertScaleAbs(depth_image, alpha=0.03), cv2.COLORMAP_JET)
         # Process the frame
         results = hands.process(rgb_frame)
 
         if results.multi_hand_landmarks:
             for idx, hand_landmarks in enumerate(results.multi_hand_landmarks):
-                if(results.multi_handedness[idx].classification[0].label == 'Left'):
-                    finger_base = hand_landmarks.landmark[mp_hands.HandLandmark.INDEX_FINGER_MCP]
-                    finger_tip = hand_landmarks.landmark[mp_hands.HandLandmark.INDEX_FINGER_TIP]
+                # if(results.multi_handedness[idx].classification[0].label == 'Left'):
+                #     finger_base = hand_landmarks.landmark[mp_hands.HandLandmark.INDEX_FINGER_MCP]
+                #     finger_tip = hand_landmarks.landmark[mp_hands.HandLandmark.INDEX_FINGER_TIP]
                         
-                    print(f'finger_base: x:{finger_base.x:.4f}, y:{finger_base.y:.4f}, z:{finger_base.z:.4f}')
-                    print(f'finger_tip: x:{finger_tip.x:.4f}, y:{finger_tip.y:.4f}, z:{finger_tip.z:.4f}')
-                    up = finger_tip.y < finger_base.y
-                    print('up' if up else 'down')
-                    if up:
-                        if not lightIsOn:
-                            try:
-                                asyncio.run(turn_on(plug))
-                                lightIsOn = True
-                                print('on')
-                            except Exception as e:
-                                print(e)
-                    else:
-                        if lightIsOn:
-                            try:
-                                asyncio.run(turn_off(plug))
-                                lightIsOn = False
-                                print('off')
-                            except Exception as e:
-                                print(e)
+                #     print(f'finger_base: x:{finger_base.x:.4f}, y:{finger_base.y:.4f}, z:{finger_base.z:.4f}')
+                #     print(f'finger_tip: x:{finger_tip.x:.4f}, y:{finger_tip.y:.4f}, z:{finger_tip.z:.4f}')
+                #     up = finger_tip.y < finger_base.y
+                #     print('up' if up else 'down')
+                #     if up:
+                #         if not lightIsOn:
+                #             try:
+                #                 asyncio.run(turn_on(plug))
+                #                 lightIsOn = True
+                #                 print('on')
+                #             except Exception as e:
+                #                 print(e)
+                #     else:
+                #         if lightIsOn:
+                #             try:
+                #                 asyncio.run(turn_off(plug))
+                #                 lightIsOn = False
+                #                 print('off')
+                #             except Exception as e:
+                #                 print(e)
 
-                # mp_drawing.draw_landmarks(
-                #     image=rgb_frame,
-                #     landmark_list=hand_landmarks,
-                #     connections=mp_hands.HAND_CONNECTIONS,
-                #     landmark_drawing_spec=mp_drawing.DrawingSpec(thickness=2, circle_radius=2),
-                #     connection_drawing_spec=mp_drawing.DrawingSpec(thickness=1, circle_radius=2)
-                # )
+                mp_drawing.draw_landmarks(
+                    image=depth_colormap,
+                    landmark_list=hand_landmarks,
+                    connections=mp_hands.HAND_CONNECTIONS,
+                    landmark_drawing_spec=mp_drawing.DrawingSpec(thickness=2, circle_radius=2),
+                    connection_drawing_spec=mp_drawing.DrawingSpec(thickness=1, circle_radius=2)
+                )
 
         # Display the frame
-        # cv2.imshow('hands', cv2.cvtColor(rgb_frame, cv2.COLOR_RGB2BGR))
+        # cv2.cvtColor(rgb_frame, cv2.COLOR_RGB2BGR)
+        cv2.imshow('hands', depth_colormap)
+        cv2.imshow('handsRGB', cv2.cvtColor(rgb_frame, cv2.COLOR_RGB2BGR))
         if cv2.waitKey(1) & 0xFF == ord('q'):
             break
 
