@@ -1,3 +1,5 @@
+import math
+
 def check_intersection(start, direction, cube_min, cube_max):
     """
     Checks if a vector starting from 'start' in the direction of 'direction' collides with a cube
@@ -50,3 +52,30 @@ cube_max_corner = (3, 3, 3)  # Maximum corner of the cube
 collision = does_vector_collide_with_cube(start_point, vector_direction, cube_min_corner, cube_max_corner)
 print("Collision:", collision)
 '''
+
+def is_thumbs_up(hands_landmark):
+    # tipPos = hands_landmark.landmark[4]
+    # basePos = hands_landmark.landmark[2]
+
+    return  check_angle_finger(hands_landmark) > 50
+
+
+def check_angle_finger(hands_landmark):
+    baseThumb = [hands_landmark.landmark[2].x, hands_landmark.landmark[2].y]
+    tipThumb = [hands_landmark.landmark[4].x, hands_landmark.landmark[4].y]
+
+    baseIndex= [hands_landmark.landmark[5].x, hands_landmark.landmark[5].y]
+    tipIndex= [hands_landmark.landmark[8].x, hands_landmark.landmark[8].y]
+
+    thumb_vector = [tipThumb[0] - baseThumb[0], tipThumb[1] - baseThumb[1]]
+    index_vector = [tipIndex[0] - baseIndex[0], tipIndex[1] - baseIndex[1]]
+
+    x1,y1 = thumb_vector
+    x2,y2 = index_vector
+
+    dot_product = x1 * x2 + y1 * y2
+    mag1 = math.sqrt(x1**2 + y1**2)
+    mag2 = math.sqrt(x2**2 + y2**2)
+
+    angle = math.acos(dot_product/(mag1*mag2))
+    return math.degrees(angle)

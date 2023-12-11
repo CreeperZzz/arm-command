@@ -15,8 +15,8 @@ async def turn_off(plug: SmartPlug):
     await plug.turn_off()
 
 def main():
-
-    # plug = SmartPlug('192.168.1.202')
+    prevUp = False
+    plug = SmartPlug('192.168.1.201')
     # asyncio.run(plug.update())
     # lightIsOn = plug.is_on
 
@@ -26,7 +26,7 @@ def main():
     hands = mp_hands.Hands(
         min_detection_confidence=0.3,
         min_tracking_confidence=0.3,
-        max_num_hands=1
+        max_num_hands=2
     )
 
     mp_drawing = mp.solutions.drawing_utils
@@ -39,8 +39,12 @@ def main():
     config.enable_stream(rs.stream.depth, 640, 480, rs.format.z16, 30)
     config.enable_stream(rs.stream.color, 640, 480, rs.format.rgb8, 30)
 
+
+
     # Start streaming
     pipeline.start(config)
+    sensor = pipeline.get_active_profile().get_device().first_color_sensor()
+    sensor.set_option(rs.option.exposure, 500)
     align = rs.align(rs.stream.color)
 
     try:
@@ -58,12 +62,15 @@ def main():
             depth_image = np.asanyarray(aligned_depth_frame.get_data())
 
             depth_colormap = cv2.applyColorMap(cv2.convertScaleAbs(depth_image, alpha=0.03), cv2.COLORMAP_JET)
-            # Process the frame
+
+            #procee the object detection
+            object_results = model(rgb_frame)
+            frame = object_results.render()[0]
+            detections = object_results.xyxy[0]
+            
+            # Process the hand detection
             results = hands.process(rgb_frame)
             
-            vector_start = ()
-            vector_direction = ()
-
             if results.multi_hand_landmarks:
                 for idx, hand_landmarks in enumerate(results.multi_hand_landmarks):
                     if(results.multi_handedness[idx].classification[0].label == 'Right'):
@@ -75,35 +82,44 @@ def main():
 
                         if finger_tip.x < 0  or finger_base.x < 0 or finger_tip.x >=1   or finger_base.x >=1:
                             continue 
-
+                        
+                        #get the finger vector
                         dx = (finger_tip.x - finger_base.x) * 640
                         dy = (finger_tip.y - finger_base.y) * 480
-                        dz = aligned_depth_frame.get_distance(int(640*finger_tip.x), int(480*finger_tip.y))- aligned_depth_frame.get_distance(int(640*finger_base.x), int(480*finger_base.y))
-
-                        #this line is not working properly. Got overflow warning in some case. I find a new function that works well
-                        '''
-                        dz = depth_image[int(480*finger_tip.y)][int(640*finger_tip.x)] - depth_image[int(480*finger_base.y)][int(640*finger_base.x)]
-                        '''                        
+                        dz = aligned_depth_frame.get_distance(int(640*finger_tip.x), int(480*finger_tip.y))- aligned_depth_frame.get_distance(int(640*finger_base.x), int(480*finger_base.y))     
                         vector_start = (finger_base.x*640, finger_base.y*480, aligned_depth_frame.get_distance(int(640*finger_base.x), int(480*finger_base.y)))
                         vector_direction = (dx, dy, dz)
-                    #     up = finger_tip.y < finger_base.y
-                    #     print('up' if up else 'down')
-                    #     if up:
-                    #         if not lightIsOn:
-                    #             try:
-                    #                 asyncio.run(turn_on(plug))
-                    #                 lightIsOn = True
-                    #                 print('on')
-                    #             except Exception as e:
-                    #                 print(e)
-                    #     else:
-                    #         if lightIsOn:
-                    #             try:
-                    #                 asyncio.run(turn_off(plug))
-                    #                 lightIsOn = False
-                    #                 print('off')
-                    #             except Exception as e:
-                    #                 print(e)
+                        up = myutils.is_thumbs_up(hand_landmarks)
+                    
+                        for detection in detections.numpy(): #loop all detected object
+                            xmin, ymin, xmax, ymax, confidence, class_id = detection
+                            if confidence > 0.5:
+                                object_min_corner = (xmin, ymin, aligned_depth_frame.get_distance(int(xmin+(xmax-xmin)/2), int(ymin+(ymax-ymin)/2))-0.2)
+                                object_max_corner = (xmax, ymax, aligned_depth_frame.get_distance(int(xmin+(xmax-xmin)/2), int(ymin+(ymax-ymin)/2)))
+                        
+                                #check the intersection
+                                if vector_start and vector_direction and object_min_corner and object_max_corner:
+                                    if myutils.check_intersection(vector_start, vector_direction, object_min_corner, object_max_corner):
+                                        cv2.putText(rgb_frame, "Pointed", (10,30), cv2.FONT_HERSHEY_SIMPLEX, 1, (255,255,255), 2, cv2.LINE_AA)
+                                        print('up' if up else 'down')
+                                        if up and not prevUp:
+                                            asyncio.run(plug.update())
+                                            lightIsOn = plug.is_on
+                                            print("change")
+                                            if not lightIsOn:
+                                                try:
+                                                    asyncio.run(turn_on(plug))
+                                                    print('on')
+                                                except Exception as e:
+                                                    print(e)
+                                            if lightIsOn:
+                                                try:
+                                                    asyncio.run(turn_off(plug))
+                                                    print('off')
+                                                except Exception as e:
+                                                    print(e)
+                                        break
+                        prevUp = up
 
                     mp_drawing.draw_landmarks(
                         image=depth_colormap,
@@ -113,23 +129,6 @@ def main():
                         connection_drawing_spec=mp_drawing.DrawingSpec(thickness=1, circle_radius=2)
                     )
 
-            #procee the object detection
-            object_results = model(rgb_frame)
-            frame = object_results.render()[0]
-            detections = object_results.xyxy[0]
-            object_min_corner = ()
-            object_max_corner = ()
-            for detection in detections.numpy():
-                xmin, ymin, xmax, ymax, confidence, class_id = detection
-                if confidence > 0.5:
-                    object_min_corner = (xmin, ymin, aligned_depth_frame.get_distance(int(xmin+(xmax-xmin)/2), int(ymin+(ymax-ymin)/2))-0.2)
-                    object_max_corner = (xmax, ymax, aligned_depth_frame.get_distance(int(xmin+(xmax-xmin)/2), int(ymin+(ymax-ymin)/2)))
-                # print("object:", xmin, ymin, xmax, ymax)
-                # print(f'center depth: {aligned_depth_frame.get_distance(int(xmin+(xmax-xmin)/2), int(ymin+(ymax-ymin)/2))}')
-            #check the intersection
-            if vector_start and vector_direction and object_min_corner and object_max_corner:
-                if myutils.check_intersection(vector_start, vector_direction, object_min_corner, object_max_corner):
-                    cv2.putText(rgb_frame, "Pointed", (10,30), cv2.FONT_HERSHEY_SIMPLEX, 1, (255,255,255), 2, cv2.LINE_AA)
             # Display the frame
             # cv2.cvtColor(rgb_frame, cv2.COLOR_RGB2BGR)
             cv2.imshow('hands', depth_colormap)
