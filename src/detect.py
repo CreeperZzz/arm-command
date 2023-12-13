@@ -16,9 +16,10 @@ async def turn_off(plug: SmartPlug):
 
 def main():
     prevUp = False
-    plug = SmartPlug('192.168.1.201')
-    # asyncio.run(plug.update())
-    # lightIsOn = plug.is_on
+    light = SmartPlug('192.168.1.201')
+    monitor = SmartPlug('192.168.1.182')
+    devices = {0: light, 1: monitor}
+
 
     model = torch.hub.load('ultralytics/yolov5', 'custom', path='/home/masters/repo/arm-command/src/model/best.pt')
     
@@ -96,13 +97,14 @@ def main():
                             if confidence > 0.5:
                                 object_min_corner = (xmin, ymin, aligned_depth_frame.get_distance(int(xmin+(xmax-xmin)/2), int(ymin+(ymax-ymin)/2))-0.2)
                                 object_max_corner = (xmax, ymax, aligned_depth_frame.get_distance(int(xmin+(xmax-xmin)/2), int(ymin+(ymax-ymin)/2)))
-                        
+
                                 #check the intersection
                                 if vector_start and vector_direction and object_min_corner and object_max_corner:
                                     if myutils.check_intersection(vector_start, vector_direction, object_min_corner, object_max_corner):
-                                        cv2.putText(rgb_frame, "Pointed", (10,30), cv2.FONT_HERSHEY_SIMPLEX, 1, (255,255,255), 2, cv2.LINE_AA)
+                                        cv2.putText(rgb_frame, f"Pointed: {class_id}", (10,30), cv2.FONT_HERSHEY_SIMPLEX, 1, (255,255,255), 2, cv2.LINE_AA)
                                         print('up' if up else 'down')
                                         if up and not prevUp:
+                                            plug = devices[class_id]
                                             asyncio.run(plug.update())
                                             lightIsOn = plug.is_on
                                             print("change")
