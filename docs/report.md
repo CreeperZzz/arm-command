@@ -11,6 +11,10 @@
 
 Provide a brief overview of the project objhectives, approach, and results.
 
+Arm command aims to streamline and simplify the user interaction with smart devices in one's home. By leveraging a Lidar, RGB camera, and an intel NUC, we allow the user to simply point to a smart device and toggle it on/off by raising their thumb.
+We utilized MediaPipe's hand detection model to identify the user's hand, and then created our own algorithm to create a vector of the index finger to then determine the object being pointed to. By training a YOLO object detector model, we are currently able to indentify a lamp and a computer monitor, allowing the user to control both by simply making a thumbs up. The object's hitbox were created based on the location in the image and then extruded to become a 3d object. We then project tyhe finger's vector trajectory and check for any collion with the hitboxes.
+We were able to achieve good accuracy when detecting the user's hand and intersect with the objects, and the system runs with minimal to no latency.
+
 # 1. Introduction
 
 This section should cover the following items:
