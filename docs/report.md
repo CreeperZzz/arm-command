@@ -77,6 +77,9 @@ By using a small computer, a camera, and a Lidar, we are able to first detect a 
 
 
 # 4. Evaluation and Results
+When evaluating the system, we first wanted to make sure that it was functioning as expected. As such, the main metric for user interaction/experience was the time taken from the moment the user interact with the system to when the action is triggered. In this case, this means the delay from the moment the user points and raises a thumb, to the moment the smart device toggles on/off. We ran an experiment and measured the time taken over 10 distinct interactions. After collecting the data, we calculated an average delay of less than 1 second, meaning it was unnoticeable. When comparing it to a system such as Alexa, our system presented a shorted delay due to the fact that it does not need to listen to the command and interpret it using a NLP algorithm.
+
+The second metric we measured was the accuracy of our object detection model and the generated "hitbox" for the objects. In this case, we wanted to see how close can two objects be before the system does not behave as expected due to conflicting hitboxes. For our surprise, as long as the objects are not overlapping each other, it performs as expected. This is mainly due to the fact that we are only using one camera, thus limiting our point of view to a stationary observer.
 
 # 5. Discussion and Conclusions
 
