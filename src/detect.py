@@ -47,7 +47,8 @@ def main():
     sensor = pipeline.get_active_profile().get_device().first_color_sensor()
     sensor.set_option(rs.option.exposure, 500)
     align = rs.align(rs.stream.color)
-
+    objects = None
+    image_result = None
     try:
         while True:
             frames = pipeline.wait_for_frames()
@@ -64,11 +65,32 @@ def main():
 
             depth_colormap = cv2.applyColorMap(cv2.convertScaleAbs(depth_image, alpha=0.03), cv2.COLORMAP_JET)
 
-            #procee the object detection
-            object_results = model(rgb_frame)
-            frame = object_results.render()[0]
-            detections = object_results.xyxy[0]
+            while objects is None:
             
+                #procee the object detection
+                object_results = model(rgb_frame)
+                # frame = object_results.render()[0]
+                detections = object_results.xyxy[0]
+                good_result = True
+                # for detection in detections.numpy():
+                #     xmin, ymin, xmax, ymax, confidence, class_id = detection
+                #     if confidence < 0.5:
+                #         good_result = False
+                #         print(class_id)
+                #         break
+
+                # if good_result:
+                objects = []
+                image_result = object_results
+                for detection in detections.numpy():
+                    xmin, ymin, xmax, ymax, confidence, class_id = detection
+                    object_min_corner = (xmin, ymin, aligned_depth_frame.get_distance(int(xmin+(xmax-xmin)/2), int(ymin+(ymax-ymin)/2))-0.1)
+                    object_max_corner = (xmax, ymax, aligned_depth_frame.get_distance(int(xmin+(xmax-xmin)/2), int(ymin+(ymax-ymin)/2))+0.1)
+                    
+                    objects.append((class_id, object_min_corner, object_max_corner))
+
+            frame = image_result.render()[0]
+
             # Process the hand detection
             results = hands.process(rgb_frame)
             
@@ -91,51 +113,51 @@ def main():
                         vector_start = (finger_base.x*640, finger_base.y*480, aligned_depth_frame.get_distance(int(640*finger_base.x), int(480*finger_base.y)))
                         vector_direction = (dx, dy, dz)
                         up = myutils.is_thumbs_up(hand_landmarks)
-                    
-                        for detection in detections.numpy(): #loop all detected object
-                            xmin, ymin, xmax, ymax, confidence, class_id = detection
-                            if confidence > 0.5:
-                                object_min_corner = (xmin, ymin, aligned_depth_frame.get_distance(int(xmin+(xmax-xmin)/2), int(ymin+(ymax-ymin)/2))-0.2)
-                                object_max_corner = (xmax, ymax, aligned_depth_frame.get_distance(int(xmin+(xmax-xmin)/2), int(ymin+(ymax-ymin)/2)))
 
-                                #check the intersection
-                                if vector_start and vector_direction and object_min_corner and object_max_corner:
-                                    if myutils.check_intersection(vector_start, vector_direction, object_min_corner, object_max_corner):
-                                        cv2.putText(rgb_frame, f"Pointed: {class_id}", (10,30), cv2.FONT_HERSHEY_SIMPLEX, 1, (255,255,255), 2, cv2.LINE_AA)
-                                        print('up' if up else 'down')
-                                        if up and not prevUp:
-                                            plug = devices[class_id]
-                                            asyncio.run(plug.update())
-                                            lightIsOn = plug.is_on
-                                            print("change")
-                                            if not lightIsOn:
-                                                try:
-                                                    asyncio.run(turn_on(plug))
-                                                    print('on')
-                                                except Exception as e:
-                                                    print(e)
-                                            if lightIsOn:
-                                                try:
-                                                    asyncio.run(turn_off(plug))
-                                                    print('off')
-                                                except Exception as e:
-                                                    print(e)
-                                        break
+                        # detections = objects.xyxy[0]
+                        for detection in objects: #loop all detected object
+                            # print(detection)
+                            class_id, object_min_corner, object_max_corner = detection
+                            # object_min_corner = (xmin, ymin, aligned_depth_frame.get_distance(int(xmin+(xmax-xmin)/2), int(ymin+(ymax-ymin)/2))-0.1)
+                            # object_max_corner = (xmax, ymax, aligned_depth_frame.get_distance(int(xmin+(xmax-xmin)/2), int(ymin+(ymax-ymin)/2))+0.3)
+
+                            #check the intersection
+                            if vector_start and vector_direction and object_min_corner and object_max_corner:
+                                if myutils.check_intersection(vector_start, vector_direction, object_min_corner, object_max_corner):
+                                    cv2.putText(rgb_frame, f"Pointed: {class_id}", (10,30), cv2.FONT_HERSHEY_SIMPLEX, 1, (255,255,255), 2, cv2.LINE_AA)
+                                    # print('up' if up else 'down')
+                                    if up and not prevUp:
+                                        plug = devices[class_id]
+                                        asyncio.run(plug.update())
+                                        lightIsOn = plug.is_on
+                                        print("change")
+                                        if not lightIsOn:
+                                            try:
+                                                asyncio.run(turn_on(plug))
+                                                print('on')
+                                            except Exception as e:
+                                                print(e)
+                                        if lightIsOn:
+                                            try:
+                                                asyncio.run(turn_off(plug))
+                                                print('off')
+                                            except Exception as e:
+                                                print(e)
+                                    break
                         prevUp = up
-
+                    
                     mp_drawing.draw_landmarks(
-                        image=depth_colormap,
+                        image=rgb_frame,
                         landmark_list=hand_landmarks,
                         connections=mp_hands.HAND_CONNECTIONS,
                         landmark_drawing_spec=mp_drawing.DrawingSpec(thickness=2, circle_radius=2),
                         connection_drawing_spec=mp_drawing.DrawingSpec(thickness=1, circle_radius=2)
                     )
-
             # Display the frame
             # cv2.cvtColor(rgb_frame, cv2.COLOR_RGB2BGR)
-            cv2.imshow('hands', depth_colormap)
+            # cv2.imshow('hands', depth_colormap)
             cv2.imshow('handsRGB', cv2.cvtColor(rgb_frame, cv2.COLOR_RGB2BGR))
-            # cv2.imshow('object', frame)
+            cv2.imshow('object', frame)
             if cv2.waitKey(1) & 0xFF == ord('q'):
                 break
 

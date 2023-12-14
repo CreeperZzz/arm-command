@@ -57,7 +57,7 @@ def is_thumbs_up(hands_landmark):
     # tipPos = hands_landmark.landmark[4]
     # basePos = hands_landmark.landmark[2]
 
-    return  check_angle_finger(hands_landmark) > 50
+    return  check_angle_finger(hands_landmark) > 60
 
 
 def check_angle_finger(hands_landmark):
