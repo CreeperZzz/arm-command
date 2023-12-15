@@ -13,5 +13,5 @@ By using a raspberry pi, a camera, and a Lidar, we are able to first detect a pe
 
 * [Proposal](proposal)
 * [Midterm Checkpoint Presentation Slides](http://)
-* [Final Presentation Slides](http://)
+* [Final Presentation Slides](https://docs.google.com/presentation/d/1Sw6ULTTgbzVjkNbnwfmpK9u3tEsaYvLunu-oBCyh7cY/edit?usp=sharing)
 * [Final Report](report)
