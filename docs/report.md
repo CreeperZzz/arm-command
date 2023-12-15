@@ -91,7 +91,11 @@ When evaluating the system, we first wanted to make sure that it was functioning
 The second metric we measured was the accuracy of our object detection model and the generated "hitbox" for the objects. In this case, we wanted to see how close can two objects be before the system does not behave as expected due to conflicting hitboxes. For our surprise, as long as the objects are not overlapping each other, it performs as expected. This is mainly due to the fact that we are only using one camera, thus limiting our point of view to a stationary observer.
 
 # 5. Discussion and Conclusions
+## Discussion
+The Arm command project successfully developed a gesture-based control system for smart home devices using Lidar and camera only, bypassing the need for wearables and voice commands. The system utilized MediaPipe for hand landmark detection and a YOLO model for object identification, achieving an average response time under one second, notably faster than voice-activated systems. Challenges included ensuring sensor accuracy and computational efficiency, as well as addressing potential privacy concerns.
 
+## Conclusions
+Our project met its initial objectives, demonstrating a novel, efficient method for smart device interaction that holds promise for individuals with speech impairments. While the response time and accuracy fulfilled the project's success metrics, future work should aim to refine the system's ability to operate in more complex environments, lower the latency and enhance privacy safeguards. 
 # 6. References
 
 - [Intel Realsense](https://www.intelrealsense.com/developers/)
