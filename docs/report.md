@@ -75,7 +75,7 @@ By using a small computer, a camera, and a Lidar, we are able to first detect a 
 # 3. Technical Approach
 ### Hand Detections
 We use the Mediapipe hand model to detect hand skeletons in realtime. And we calculate the index finger vector based on its finger base and finger tip. 
-### Object Detetions
+### Object Detections
 We trained a YOLO v5s model to perform the object detection of both the lamp and computer monitor. We then create a boundary cube around the objects to serve as a hitbox.
 ### Pointing Check
 We then calculate the intercept between the finger vector and the objects’ hitbox to determine which object is being pointed to.
