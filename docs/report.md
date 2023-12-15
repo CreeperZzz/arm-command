@@ -93,3 +93,8 @@ The second metric we measured was the accuracy of our object detection model and
 # 5. Discussion and Conclusions
 
 # 6. References
+
+- [Intel Realsense](https://www.intelrealsense.com/developers/)
+- [Mediapipe Hand Landmark detection model](https://github.com/google/mediapipe/blob/master/docs/solutions/hands.md)
+- [SeleCon](https://ieeexplore.ieee.org/document/7946862)
+- [Minuet](https://dl.acm.org/doi/10.1145/3357251.3357581)
