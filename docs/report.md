@@ -73,6 +73,8 @@ By using a small computer, a camera, and a Lidar, we are able to first detect a 
 - [Minuet](https://dl.acm.org/doi/10.1145/3357251.3357581) : This paper explores the HCI aspect of using of multimodal approach to interacting with smart home devices.
 
 # 3. Technical Approach
+### System Logic
+When the system boot up, it will first take an image and scan all the smart devices, then building connections with them through wifi based on the configuration files and storing their coordinates. When a person shows up, the system will track his left hands. Calculate the index finger's vector and do pointing check with devices. When the system detects a device is being pointed, it will track the user's thumb skeletons to detect a thumbs up. After detecting that gesture, the system will send toggle command to device. 
 ### Hand Detections
 We use the Mediapipe hand model to detect hand skeletons in realtime. And we calculate the index finger vector based on its finger base and finger tip. 
 ### Object Detections
